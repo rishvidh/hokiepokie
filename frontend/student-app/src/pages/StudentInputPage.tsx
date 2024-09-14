@@ -1,5 +1,3 @@
-
-// Import necessary libraries and hooks
 import React, { useState } from 'react';
 
 const StudentInputPage: React.FC = () => {
@@ -16,7 +14,7 @@ const StudentInputPage: React.FC = () => {
             return;
         }
 
-        // data to be sent to backend
+        // Data to be sent to backend
         const formData = new FormData();
         formData.append('studentName', studentName);
         formData.append('studentID', studentID);
@@ -45,56 +43,195 @@ const StudentInputPage: React.FC = () => {
     };
 
     return (
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h1>Upload Student Information</h1>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="studentName">Student Name:</label>
-                    <input
-                        type="text"
-                        id="studentName"
-                        value={studentName}
-                        onChange={(e) => setStudentName(e.target.value)}
-                        required
-                    />
-                </div>
+        <div style={styles.pageContainer}>
+            {/* Header Section */}
+            <header style={styles.header}>
+                {/* HokieSchedule Button on the Top Left */}
+                <button style={styles.homeButton} onClick={() => window.location.href = '/'}>
+                    HokieSchedule
+                </button>
+                <h1 style={styles.pageTitle}>Student Information</h1>
+            </header>
 
-                <div>
-                    <label htmlFor="studentID">Student ID:</label>
-                    <input
-                        type="text"
-                        id="studentID"
-                        value={studentID}
-                        onChange={(e) => setStudentID(e.target.value)}
-                        required
-                    />
-                </div>
+            <div style={styles.contentContainer}>
+                <div style={styles.container}>
+                    <form onSubmit={handleSubmit}>
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Student Name:</label>
+                            <input
+                                type="text"
+                                style={styles.input}
+                                id="studentName"
+                                value={studentName}
+                                onChange={(e) => setStudentName(e.target.value)}
+                                required
+                            />
+                        </div>
 
-                <div>
-                    <label htmlFor="transcript">Upload Transcript:</label>
-                    <input
-                        type="file"
-                        id="transcript"
-                        accept=".pdf,.docx"
-                        onChange={(e) => setTranscript(e.target.files ? e.target.files[0] : null)}
-                        required
-                    />
-                </div>
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Student ID:</label>
+                            <input
+                                type="text"
+                                style={styles.input}
+                                id="studentID"
+                                value={studentID}
+                                onChange={(e) => setStudentID(e.target.value)}
+                                required
+                            />
+                        </div>
 
-                <div>
-                    <label htmlFor="otherFiles">Upload Other Relevant Files (optional):</label>
-                    <input
-                        type="file"
-                        id="otherFiles"
-                        multiple
-                        onChange={(e) => setOtherFiles(e.target.files)}
-                    />
-                </div>
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Upload Transcript:</label>
+                            <input
+                                type="file"
+                                style={styles.fileInput}
+                                id="transcript"
+                                accept=".pdf,.docx"
+                                onChange={(e) => setTranscript(e.target.files ? e.target.files[0] : null)}
+                                required
+                            />
+                        </div>
 
-                <button type="submit">Submit</button>
-            </form>
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Upload Other Relevant Files (optional):</label>
+                            <input
+                                type="file"
+                                id="otherFiles"
+                                style={styles.fileInput}
+                                multiple
+                                onChange={(e) => setOtherFiles(e.target.files)}
+                            />
+                        </div>
+
+                        <button
+                            style={styles.submitButton}
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     );
 };
 
+// Styles with dark page background and VT color theme
+const styles: { [key: string]: React.CSSProperties } = {
+    pageContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#1c1c1c', // Blackish background for the entire page
+    },
+    header: {
+        width: '100%',
+        padding: '1.5rem',
+        textAlign: 'center',
+        background: 'linear-gradient(90deg, #6A2C3E, #CF4520)',
+        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
+        top: 0, // Ensures header is at the top
+    },
+    homeButton: {
+        position: 'absolute',
+        left: '1.5rem',
+        backgroundColor: 'transparent',
+        color: '#FFFFFF',
+        border: 'none',
+        fontSize: '1.5rem',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        textDecoration: 'none', // No underline
+    },
+    pageTitle: {
+        color: '#FFFFFF', // White color for the title
+        fontSize: '2rem',
+        fontWeight: 'bold',
+        margin: 0,
+    },
+    contentContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexGrow: 1,
+        width: '100%',
+        padding: '20px',
+    },
+    container: {
+        maxWidth: '600px',
+        width: '90%',
+        padding: '20px',
+        backgroundColor: '#6A2C3E', // VT color for the content box
+        borderRadius: '10px',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+        fontFamily: 'Arial, sans-serif',
+        color: 'white',
+        textAlign: 'center',
+    },
+    inputGroup: {
+        marginBottom: '15px',
+        textAlign: 'left', // Aligns input group labels and fields to the left
+    },
+    label: {
+        display: 'block',
+        fontWeight: 'bold',
+        marginBottom: '5px',
+        color: '#CF4520', // VT color for labels to match highlighted text
+    },
+    input: {
+        width: '100%',
+        padding: '10px',
+        fontSize: '1rem',
+        borderRadius: '5px',
+        border: '1px solid #CF4520', // VT color for input border
+        backgroundColor: '#292929',
+        color: 'white',
+    },
+    fileInput: {
+        padding: '5px',
+        color: '#FFFFFF',
+    },
+    submitButton: {
+        display: 'block',
+        width: '100%',
+        padding: '10px',
+        fontSize: '1rem',
+        backgroundColor: '#CF4520', // VT color for button
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        transition: 'background-color 0.3s ease, transform 0.2s ease', // Add transform transition for smooth scaling
+    },
+};
+
+// Adding the pulse animation for hover
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = `
+  button:hover {
+    animation: pulse 1s infinite; /* Apply pulse animation only on hover */
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+`;
+document.head.appendChild(styleSheet);
+
 export default StudentInputPage;
+
+
+
