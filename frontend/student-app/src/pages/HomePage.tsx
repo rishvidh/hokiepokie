@@ -25,7 +25,7 @@ const App: React.FC = () => {
           <nav style={styles.nav}>
             <a href="/about" style={styles.navLink}>About</a>
             <Link to="/StudentInputPage" style={styles.navLink}>
-              FindYou
+              FindYour
             </Link>
           </nav>
         </div>
