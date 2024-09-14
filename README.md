@@ -1,2 +1,2 @@
 # vthacks12
-Team Members: Sid, Jagan, Rish, Suyash Moo
+Team Members: Siddarth Pallavola, Jagan M., Rish, Suyash
