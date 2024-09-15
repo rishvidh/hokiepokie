@@ -1,10 +1,11 @@
-require('dotenv').config();
+import dotenv from "dotenv";
+import fs from "fs";
+import csv from "csv-parser";
+import mongoose from "mongoose";
+import Course from "../models/Course.js";
+import Professor from "../models/Professor.js";
 
-const fs = require('fs');
-const csv = require('csv-parser');
-const mongoose = require('mongoose');
-const Course = require('../models/Course');
-const Professor = require('../models/Professor');
+dotenv.config();
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
@@ -14,16 +15,16 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log(err));
 
-// Helper function to calculate the weighted average GPA
-function calculateWeightedGPA(totalGpa, enrollment, newGpa, newEnrollment) {
-  return ((totalGpa * enrollment) + (newGpa * newEnrollment)) / (enrollment + newEnrollment);
+// Helper function to calculate the average GPA
+function calculateAverageGPA(totalGpa, numberOfSections, newGpa) {
+  return (totalGpa * numberOfSections + newGpa) / (numberOfSections + 1);
 }
 
-// Helper function to update the grade distribution by adding percentages
-function updateGradeDistribution(current, newSection) {
+// Helper function to update the grade distribution by averaging
+function updateAverageGradeDistribution(current, newSection, numberOfSections) {
   const keys = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "F", "withdraws"];
   keys.forEach(key => {
-    current[key] = (current[key] || 0) + newSection[key] || 0;
+    current[key] = (current[key] * numberOfSections + newSection[key]) / (numberOfSections + 1); // Calculate the running average
   });
 }
 
@@ -50,18 +51,18 @@ fs.createReadStream('data.csv')
 
       const gradeDistribution = {
         A: parseFloat(row['A (%)']) || 0,
-        'A-': parseFloat(row['A- (%)']) || 0,
+        AMinus: parseFloat(row['A- (%)']) || 0,
         BPlus: parseFloat(row['B+ (%)']) || 0,
         B: parseFloat(row['B (%)']) || 0,
-        'B-': parseFloat(row['B- (%)']) || 0,
+        BMinus: parseFloat(row['B- (%)']) || 0,
         CPlus: parseFloat(row['C+ (%)']) || 0,
         C: parseFloat(row['C (%)']) || 0,
-        'C-': parseFloat(row['C- (%)']) || 0,
+        CMinus: parseFloat(row['C- (%)']) || 0,
         DPlus: parseFloat(row['D+ (%)']) || 0,
         D: parseFloat(row['D (%)']) || 0,
-        'D-': parseFloat(row['D- (%)']) || 0,
+        DMinus: parseFloat(row['D- (%)']) || 0,
         F: parseFloat(row['F (%)']) || 0,
-        withdraws: parseFloat(row['Withdraws']) || 0
+        withdraws: parseFloat(row['Withdraws (%)']) || 0
       };
 
       // Aggregate data into courseMap
@@ -75,13 +76,15 @@ fs.createReadStream('data.csv')
           totalEnrollments: enrollments,
           credits,
           gradeDistribution: { ...gradeDistribution },
-          professors: {}
+          professors: {},
+          sectionsTaught: 1
         };
       } else {
         const course = courseMap[courseKey];
-        course.averageGpa = calculateWeightedGPA(course.averageGpa, course.totalEnrollments, gpa, enrollments);
+        course.averageGpa = calculateAverageGPA(course.averageGpa, course.sectionsTaught, gpa);
         course.totalEnrollments += enrollments;
-        updateGradeDistribution(course.gradeDistribution, gradeDistribution);
+        updateAverageGradeDistribution(course.gradeDistribution, gradeDistribution, course.sectionsTaught);
+        course.sectionsTaught += 1;
       }
 
       // Add/update professor data for the course
@@ -94,7 +97,7 @@ fs.createReadStream('data.csv')
         };
       } else {
         const professorData = course.professors[instructor];
-        professorData.averageGpa = calculateWeightedGPA(professorData.averageGpa, professorData.sectionsTaught, gpa, 1);
+        professorData.averageGpa = calculateAverageGPA(professorData.averageGpa, professorData.sectionsTaught, gpa);
         professorData.sectionsTaught += 1;
       }
 
@@ -112,7 +115,7 @@ fs.createReadStream('data.csv')
         };
       } else {
         const professorCourse = professorMap[instructor][courseKey];
-        professorCourse.averageGpa = calculateWeightedGPA(professorCourse.averageGpa, professorCourse.sectionsTaught, gpa, 1);
+        professorCourse.averageGpa = calculateAverageGPA(professorCourse.averageGpa, professorCourse.sectionsTaught, gpa);
         professorCourse.sectionsTaught += 1;
       }
     }
